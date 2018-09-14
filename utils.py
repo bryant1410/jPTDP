@@ -1,4 +1,6 @@
 # coding=utf-8
+from __future__ import absolute_import, division, print_function, unicode_literals
+
 from collections import Counter
 import os, re, codecs, string
 
@@ -49,7 +51,7 @@ def vocab(conll_path):
     root.idChars = [1, 2]
     tokens = [root]
 
-    for line in open(conll_path, 'r'):
+    for line in open(conll_path):
         tok = line.strip().split('\t')
         if not tok or line.strip() == '':
             if len(tokens) > 1:
@@ -86,7 +88,7 @@ def vocab(conll_path):
         posCount.update([node.pos for node in tokens if isinstance(node, ConllEntry)])
         relCount.update([node.relation for node in tokens if isinstance(node, ConllEntry)])
 
-    return (wordsCount, {w: i for i, w in enumerate(wordsCount.keys())}, c2i, posCount.keys(), relCount.keys())
+    return (wordsCount, {w: i for i, w in enumerate(wordsCount.keys())}, c2i, list(posCount.keys()), list(relCount.keys()))
 
 
 def read_conll(fh, c2i):
@@ -138,8 +140,8 @@ def read_conll_predict(fh, c2i, wordsCount):
 
     brackets_train = {} 
     for word in wordsCount:
-    	if word in brackets:
-    		brackets_train[brackets[word]] = word
+        if word in brackets:
+            brackets_train[brackets[word]] = word
 
     for line in fh:
         tok = line.strip().split('\t')
@@ -174,11 +176,11 @@ def read_conll_predict(fh, c2i, wordsCount):
                         tok[1] = "-"
 
                     if entry.norm in brackets:
-                    	entry.norm = brackets[entry.norm]
-                    	tok[1] = entry.norm
+                        entry.norm = brackets[entry.norm]
+                        tok[1] = entry.norm
                     if entry.norm in brackets_train:
-                    	entry.norm = brackets_train[entry.norm]
-                    	tok[1] = str(entry.norm).upper()
+                        entry.norm = brackets_train[entry.norm]
+                        tok[1] = str(entry.norm).upper()
                         if tok[1].lower() in ["&lt;", "&gt;", "&amp;"]:
                             tok[1] = tok[1].lower()
 

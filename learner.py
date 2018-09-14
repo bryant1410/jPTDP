@@ -1,4 +1,6 @@
 # coding=utf-8
+from __future__ import absolute_import, division, print_function, unicode_literals
+ 
 from dynet import *
 import dynet
 from utils import read_conll, read_conll_predict, write_conll, load_embeddings_file
@@ -29,7 +31,7 @@ class jPosDepLearner:
         self.cdims = options.cembedding_dims
         self.layers = options.lstm_layers
         self.wordsCount = vocab
-        self.vocab = {word: ind + 3 for word, ind in w2i.iteritems()}
+        self.vocab = {word: ind + 3 for word, ind in w2i.items()}
         self.pos = {word: ind for ind, word in enumerate(pos)}
         self.id2pos = {ind: word for ind, word in enumerate(pos)}
         self.c2i = c2i
@@ -49,11 +51,11 @@ class jPosDepLearner:
             print("Initializing word embeddings by pre-trained vectors")
             count = 0
             for word in self.vocab:
-                _word = unicode(word, "utf-8")
+                _word = str(word, "utf-8")
                 if _word in ext_embeddings:
                     count += 1
                     self.wlookup.init_row(self.vocab[word], ext_embeddings[_word])
-            print("Vocab size: %d; #words having pretrained vectors: %d" % (len(self.vocab), count))
+            print(("Vocab size: %d; #words having pretrained vectors: %d" % (len(self.vocab), count)))
 
         self.pos_builders = [VanillaLSTMBuilder(1, self.wdims + self.cdims * 2, self.ldims, self.model),
                              VanillaLSTMBuilder(1, self.wdims + self.cdims * 2, self.ldims, self.model)]
@@ -116,7 +118,7 @@ class jPosDepLearner:
         return output
 
     def __evaluate(self, sentence):
-        exprs = [[self.__getExpr(sentence, i, j) for j in xrange(len(sentence))] for i in xrange(len(sentence))]
+        exprs = [[self.__getExpr(sentence, i, j) for j in range(len(sentence))] for i in range(len(sentence))]
         scores = np.array([[output.scalar_value() for output in exprsRow] for exprsRow in exprs])
 
         return scores, exprs
@@ -157,7 +159,7 @@ class jPosDepLearner:
                     rev_last_state = self.char_rnn.predict_sequence([self.clookup[c] for c in reversed(entry.idChars)])[
                         -1]
 
-                    entry.vec = concatenate(filter(None, [wordvec, last_state, rev_last_state]))
+                    entry.vec = concatenate([_f for _f in [wordvec, last_state, rev_last_state] if _f])
 
                     entry.pos_lstms = [entry.vec, entry.vec]
                     entry.headfov = None
@@ -275,8 +277,8 @@ class jPosDepLearner:
 
             for iSentence, sentence in enumerate(shuffledData):
                 if iSentence % 500 == 0 and iSentence != 0:
-                    print "Processing sentence number: %d" % iSentence, ", Loss: %.4f" % (
-                                eloss / etotal), ", Time: %.2f" % (time.time() - start)
+                    print("Processing sentence number: %d" % iSentence, ", Loss: %.4f" % (
+                                eloss / etotal), ", Time: %.2f" % (time.time() - start))
                     start = time.time()
                     eerrors = 0
                     eloss = 0.0
@@ -294,7 +296,7 @@ class jPosDepLearner:
                     rev_last_state = self.char_rnn.predict_sequence([self.clookup[c] for c in reversed(entry.idChars)])[
                         -1]
 
-                    entry.vec = dynet.dropout(concatenate(filter(None, [wordvec, last_state, rev_last_state])), 0.33)
+                    entry.vec = dynet.dropout(concatenate([_f for _f in [wordvec, last_state, rev_last_state] if _f]), 0.33)
 
                     entry.pos_lstms = [entry.vec, entry.vec]
                     entry.headfov = None
@@ -375,10 +377,10 @@ class jPosDepLearner:
                     for pred, goldid in zip(outputFFlayer, relIDs):
                         lerrs.append(self.pick_neg_log(pred, goldid))
 
-                e = sum([1 for h, g in zip(heads[1:], gold[1:]) if h != g])
+                e = sum(1 for h, g in zip(heads[1:], gold[1:]) if h != g)
                 eerrors += e
                 if e > 0:
-                    loss = [(exprs[h][i] - exprs[g][i]) for i, (h, g) in enumerate(zip(heads, gold)) if h != g]  # * (1.0/float(e))
+                    loss = [(exprs[h][i] - exprs[g][i]) for i, (h, g) in enumerate(zip(heads, gold)) if h != g]  # * (1.0/e)
                     eloss += (e)
                     mloss += (e)
                     errs.extend(loss)
@@ -397,5 +399,5 @@ class jPosDepLearner:
 
                     renew_cg()
 
-        print "Loss: %.4f" % (mloss / iSentence)
+        print("Loss: %.4f" % (mloss / iSentence))
 

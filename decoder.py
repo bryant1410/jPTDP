@@ -1,5 +1,6 @@
 # This file contains routines from Lisbon Machine Learning summer school.
 # The code is freely distributed under a MIT license. https://github.com/LxMLS/lxmls-toolkit/
+from __future__ import absolute_import, division, print_function, unicode_literals
 
 import numpy as np
 import sys
@@ -26,8 +27,8 @@ def parse_proj(scores, gold=None):
     incomplete[0, :, 0] -= np.inf
 
     # Loop from smaller items to larger items.
-    for k in xrange(1,N+1):
-        for s in xrange(N-k+1):
+    for k in range(1, N+1):
+        for s in range(N-k+1):
             t = s+k
             
             # First, create incomplete items.
@@ -55,7 +56,7 @@ def parse_proj(scores, gold=None):
     backtrack_eisner(incomplete_backtrack, complete_backtrack, 0, N, 1, 1, heads)
 
     value_proj = 0.0
-    for m in xrange(1,N+1):
+    for m in range(1, N+1):
         h = heads[m]
         value_proj += scores[h,m]
 

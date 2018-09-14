@@ -1,6 +1,8 @@
 """
 https://raw.githubusercontent.com/bplank/bilstm-aux/master/src/lib/mnnl.py
 """
+from __future__ import absolute_import, division, print_function, unicode_literals
+ 
 import dynet
 import numpy as np
 
