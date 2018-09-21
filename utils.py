@@ -1,5 +1,7 @@
 # coding=utf-8
 from __future__ import absolute_import, division, print_function, unicode_literals
+from builtins import str
+from io import open
 
 from collections import Counter
 import os, re, codecs, string
@@ -51,37 +53,38 @@ def vocab(conll_path):
     root.idChars = [1, 2]
     tokens = [root]
 
-    for line in open(conll_path):
-        tok = line.strip().split('\t')
-        if not tok or line.strip() == '':
-            if len(tokens) > 1:
-                wordsCount.update([node.norm for node in tokens if isinstance(node, ConllEntry)])
-                posCount.update([node.pos for node in tokens if isinstance(node, ConllEntry)])
-                relCount.update([node.relation for node in tokens if isinstance(node, ConllEntry)])
-            tokens = [root]
-        else:
-            if line[0] == '#' or '-' in tok[0] or '.' in tok[0]:
-                tokens.append(line.strip())
+    with open(conll_path) as conll_file:
+        for line in conll_file:
+            tok = line.strip().split('\t')
+            if not tok or line.strip() == '':
+                if len(tokens) > 1:
+                    wordsCount.update([node.norm for node in tokens if isinstance(node, ConllEntry)])
+                    posCount.update([node.pos for node in tokens if isinstance(node, ConllEntry)])
+                    relCount.update([node.relation for node in tokens if isinstance(node, ConllEntry)])
+                tokens = [root]
             else:
-                entry = ConllEntry(int(tok[0]), tok[1], tok[2], tok[3], tok[4], tok[5],
-                                   int(tok[6]) if tok[6] != '_' else -1, tok[7], tok[8], tok[9])
-
-                if entry.norm == 'NUM':
-                    entry.idChars = [1, 3, 2]
-                elif entry.norm == 'EMAIL':
-                    entry.idChars = [1, 4, 2]
-                elif entry.norm == 'URL':
-                    entry.idChars = [1, 5, 2]
+                if line[0] == '#' or '-' in tok[0] or '.' in tok[0]:
+                    tokens.append(line.strip())
                 else:
-                    chars_of_word = [1]
-                    for char in tok[1]:
-                        if char not in c2i:
-                            c2i[char] = len(c2i)
-                        chars_of_word.append(c2i[char])
-                    chars_of_word.append(2)
-                    entry.idChars = chars_of_word
+                    entry = ConllEntry(int(tok[0]), tok[1], tok[2], tok[3], tok[4], tok[5],
+                                       int(tok[6]) if tok[6] != '_' else -1, tok[7], tok[8], tok[9])
 
-                tokens.append(entry)
+                    if entry.norm == 'NUM':
+                        entry.idChars = [1, 3, 2]
+                    elif entry.norm == 'EMAIL':
+                        entry.idChars = [1, 4, 2]
+                    elif entry.norm == 'URL':
+                        entry.idChars = [1, 5, 2]
+                    else:
+                        chars_of_word = [1]
+                        for char in tok[1]:
+                            if char not in c2i:
+                                c2i[char] = len(c2i)
+                            chars_of_word.append(c2i[char])
+                        chars_of_word.append(2)
+                        entry.idChars = chars_of_word
+
+                    tokens.append(entry)
 
     if len(tokens) > 1:
         wordsCount.update([node.norm for node in tokens if isinstance(node, ConllEntry)])
@@ -263,5 +266,3 @@ def load_embeddings_file(file_name, lower=False):
                 if count >= 1500000:
                     break
         return emb, len(emb[word])
-
-

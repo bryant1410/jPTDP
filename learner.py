@@ -1,5 +1,7 @@
 # coding=utf-8
 from __future__ import absolute_import, division, print_function, unicode_literals
+from builtins import str
+from io import open
  
 from dynet import *
 import dynet
@@ -148,7 +150,7 @@ class jPosDepLearner:
         self.model.populate(filename)
 
     def Predict(self, conll_path):
-        with open(conll_path, 'r') as conllFP:
+        with open(conll_path) as conllFP:
             for iSentence, sentence in enumerate(read_conll_predict(conllFP, self.c2i, self.wordsCount)):
                 conll_sentence = [entry for entry in sentence if isinstance(entry, utils.ConllEntry)]
 
@@ -267,7 +269,7 @@ class jPosDepLearner:
         etotal = 0
         start = time.time()
 
-        with open(conll_path, 'r') as conllFP:
+        with open(conll_path) as conllFP:
             shuffledData = list(read_conll(conllFP, self.c2i))
             random.shuffle(shuffledData)
 

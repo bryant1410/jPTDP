@@ -12,7 +12,7 @@ This github project currently supports jPTDP v2.0, while v1.0 can be found in th
 jPTDP requires the following software packages:
 
 * Python 3.4+ or 2.7
-* [`DyNet` v2.0](http://dynet.readthedocs.io/en/latest/python.html): `pip install dynet`
+* [`DyNet` v2.0](http://dynet.readthedocs.io/en/latest/python.html) and `future`: `pip install dynet future`
 
 Once you installed the prerequisite packages above, you can clone or download (and then unzip) jPTDP. Next sections show instructions to train a new joint model for POS tagging and dependency parsing, and then to utilize a pre-trained model.
 

@@ -1,5 +1,7 @@
 # coding=utf-8
 from __future__ import absolute_import, division, print_function, unicode_literals
+from builtins import str
+from io import open
 
 from optparse import OptionParser
 import pickle, utils, learner, os, os.path, time
@@ -59,9 +61,9 @@ if __name__ == '__main__':
                 fh.write('\n')
 
     else:
-        print(("Training file: " + options.conll_train))
+        print("Training file: " + options.conll_train)
         if options.conll_dev != "N/A":
-            print(("Development file: " + options.conll_dev))
+            print("Development file: " + options.conll_dev)
 
         highestScore = 0.0
         eId = 0
@@ -70,7 +72,7 @@ if __name__ == '__main__':
                 os.path.isfile(os.path.join(options.output, os.path.basename(options.model))) :
 
             print('Found a previous saved model => Loading this model')
-            with open(os.path.join(options.output, options.params), 'r') as paramsfp:
+            with open(os.path.join(options.output, options.params), 'rb') as paramsfp:
                 words, w2i, c2i, pos, rels, stored_opt = pickle.load(paramsfp)
             stored_opt.external_embedding = None
             parser = learner.jPosDepLearner(words, pos, rels, w2i, c2i, stored_opt)
@@ -117,7 +119,7 @@ if __name__ == '__main__':
             words, w2i, c2i, pos, rels = utils.vocab(options.conll_train)
 
             with open(os.path.join(options.output, options.params), 'wb') as paramsfp:
-                pickle.dump((words, w2i, c2i, pos, rels, options), paramsfp)
+                pickle.dump((words, w2i, c2i, pos, rels, options), paramsfp, protocol=2)
 
             #print 'Initializing joint model'
             parser = learner.jPosDepLearner(words, pos, rels, w2i, c2i, options)
